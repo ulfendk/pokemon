@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokémon Type Effectiveness Guide</title>
+  <style>
+    :root {
+      --bg: #1a1a2e;
+      --card-bg: #16213e;
+      --text: #e0e0e0;
+      --subtext: #888;
+      --border: #2a2a4a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      padding: 32px 20px 48px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+    header p {
+      margin-top: 8px;
+      color: var(--subtext);
+      font-size: 0.9rem;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+      color: var(--subtext);
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+    }
+
+    .card-header {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .type-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .card-header .type-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #fff;
+    }
+    .card-header .immune-note {
+      margin-left: auto;
+      font-size: 0.7rem;
+      color: var(--subtext);
+      white-space: nowrap;
+    }
+
+    .card-body {
+      padding: 10px 18px 16px;
+    }
+    .section-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--subtext);
+      margin-bottom: 8px;
+    }
+
+    .weak-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .weak-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .rank-num {
+      width: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--subtext);
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .rank-1 .rank-num { color: #FFD700; }
+    .rank-2 .rank-num { color: #C0C0C0; }
+    .rank-3 .rank-num { color: #CD7F32; }
+
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px 3px 5px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      flex-shrink: 0;
+      min-width: 90px;
+    }
+    .type-badge-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      flex-shrink: 0;
+    }
+
+    .coverage-bar-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .coverage-bar {
+      flex: 1;
+      height: 5px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .coverage-fill {
+      height: 100%;
+      border-radius: 3px;
+      opacity: 0.7;
+    }
+    .coverage-label {
+      font-size: 0.65rem;
+      color: var(--subtext);
+      min-width: 32px;
+      text-align: right;
+    }
+
+    .no-weakness {
+      font-size: 0.82rem;
+      color: var(--subtext);
+      font-style: italic;
+      padding: 4px 0;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 48px;
+      color: var(--subtext);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⚔️ Pokémon Type Effectiveness Guide</h1>
+  <p>For each type, the best attacking types to use against it — ranked by offensive versatility (Gen IX)</p>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#FFD700"></div> #1 Best counter</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#C0C0C0"></div> #2 Runner-up</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#CD7F32"></div> #3 Third choice</div>
+  <div class="legend-item">Bar width = attacker's overall offensive coverage (out of 18 types)</div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  All weaknesses deal 2× damage. Ranked by attacker's total super-effective coverage across all 18 types.<br>
+  Data based on Generation IX type chart.
+</footer>
+
+<script>
+// ─── Type colours & emoji ──────────────────────────────────────────────────
+const TYPE_META = {
+  Normal:   { color: '#A8A77A', emoji: '⭕' },
+  Fire:     { color: '#EE8130', emoji: '🔥' },
+  Water:    { color: '#6390F0', emoji: '💧' },
+  Grass:    { color: '#7AC74C', emoji: '🌿' },
+  Electric: { color: '#F7D02C', emoji: '⚡' },
+  Ice:      { color: '#96D9D6', emoji: '❄️' },
+  Fighting: { color: '#C22E28', emoji: '🥊' },
+  Poison:   { color: '#A33EA1', emoji: '☠️' },
+  Ground:   { color: '#E2BF65', emoji: '🏔️' },
+  Flying:   { color: '#A98FF3', emoji: '🦅' },
+  Psychic:  { color: '#F95587', emoji: '🔮' },
+  Bug:      { color: '#A6B91A', emoji: '🐛' },
+  Rock:     { color: '#B6A136', emoji: '🪨' },
+  Ghost:    { color: '#735797', emoji: '👻' },
+  Dragon:   { color: '#6F35FC', emoji: '🐉' },
+  Dark:     { color: '#705746', emoji: '🌑' },
+  Steel:    { color: '#B7B7CE', emoji: '⚙️' },
+  Fairy:    { color: '#D685AD', emoji: '✨' },
+};
+
+// Offensive coverage: how many types each attacker is super-effective against
+const COVERAGE = {
+  Normal:   0,
+  Fire:     4,  // Grass, Ice, Bug, Steel
+  Water:    3,  // Fire, Ground, Rock
+  Grass:    3,  // Water, Ground, Rock
+  Electric: 2,  // Water, Flying
+  Ice:      4,  // Grass, Ground, Flying, Dragon
+  Fighting: 5,  // Normal, Ice, Rock, Dark, Steel
+  Poison:   2,  // Grass, Fairy
+  Ground:   5,  // Fire, Electric, Poison, Rock, Steel
+  Flying:   3,  // Grass, Fighting, Bug
+  Psychic:  2,  // Fighting, Poison
+  Bug:      3,  // Grass, Psychic, Dark
+  Rock:     4,  // Fire, Ice, Flying, Bug
+  Ghost:    2,  // Psychic, Ghost
+  Dragon:   1,  // Dragon
+  Dark:     2,  // Psychic, Ghost
+  Steel:    3,  // Ice, Rock, Fairy
+  Fairy:    3,  // Fighting, Dragon, Dark
+};
+
+// Max coverage for bar scaling
+const MAX_COV = 5;
+
+// Weaknesses: defending type → list of attacking types that deal 2× damage
+// Ordered by descending COVERAGE, then alphabetically for ties
+const WEAKNESSES = {
+  Normal:   ['Fighting'],
+  Fire:     ['Ground','Rock','Water'],
+  Water:    ['Grass','Electric'],
+  Grass:    ['Fire','Ice','Bug','Flying','Poison'],
+  Electric: ['Ground'],
+  Ice:      ['Fighting','Fire','Rock','Steel'],
+  Fighting: ['Fairy','Flying','Psychic'],
+  Poison:   ['Ground','Psychic'],
+  Ground:   ['Ice','Grass','Water'],
+  Flying:   ['Ice','Rock','Electric'],
+  Psychic:  ['Bug','Dark','Ghost'],
+  Bug:      ['Fire','Rock','Flying'],
+  Rock:     ['Fighting','Ground','Grass','Steel','Water'],
+  Ghost:    ['Dark','Ghost'],
+  Dragon:   ['Ice','Fairy','Dragon'],
+  Dark:     ['Fighting','Bug','Fairy'],
+  Steel:    ['Fighting','Ground','Fire'],
+  Fairy:    ['Steel','Poison'],
+};
+
+const IMMUNE_NOTE = {
+  Normal:   'immune to Ghost',
+  Electric: 'immune to Ground is wrong — Ground hits Electric!',
+  Ghost:    'immune to Normal & Fighting',
+  Ground:   'immune to Electric',
+  Flying:   'immune to Ground',
+  Dark:     'immune to Psychic',
+  Steel:    'immune to Poison',
+  Fairy:    'immune to Dragon',
+  Normal_: null,
+};
+
+const REAL_IMMUNITIES = {
+  Normal:   'immune to Ghost',
+  Ghost:    'immune to Normal, Fighting',
+  Ground:   'immune to Electric',
+  Flying:   'immune to Ground',
+  Dark:     'immune to Psychic',
+  Steel:    'immune to Poison',
+  Fairy:    'immune to Dragon',
+};
+
+function buildCard(type) {
+  const meta  = TYPE_META[type];
+  const weaks = WEAKNESSES[type] || [];
+  const imm   = REAL_IMMUNITIES[type];
+
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'card-header';
+  header.style.background = `linear-gradient(135deg, ${meta.color}33 0%, transparent 100%)`;
+  header.style.borderBottom = `1px solid ${meta.color}44`;
+
+  const icon = document.createElement('div');
+  icon.className = 'type-icon';
+  icon.style.background = meta.color + '33';
+  icon.style.border = `2px solid ${meta.color}88`;
+  icon.textContent = meta.emoji;
+
+  const nameEl = document.createElement('span');
+  nameEl.className = 'type-name';
+  nameEl.style.color = meta.color;
+  nameEl.textContent = type;
+
+  header.appendChild(icon);
+  header.appendChild(nameEl);
+
+  if (imm) {
+    const immEl = document.createElement('span');
+    immEl.className = 'immune-note';
+    immEl.title = 'This type is immune to the listed attacking type(s)';
+    immEl.textContent = '🛡 ' + imm;
+    header.appendChild(immEl);
+  }
+
+  card.appendChild(header);
+
+  // Body
+  const body = document.createElement('div');
+  body.className = 'card-body';
+
+  const label = document.createElement('div');
+  label.className = 'section-label';
+  label.textContent = weaks.length ? 'Super-effective against this type (ranked)' : 'Weaknesses';
+  body.appendChild(label);
+
+  if (weaks.length === 0) {
+    const none = document.createElement('div');
+    none.className = 'no-weakness';
+    none.textContent = 'No type deals super-effective damage';
+    body.appendChild(none);
+  } else {
+    const list = document.createElement('ul');
+    list.className = 'weak-list';
+
+    weaks.forEach((attacker, i) => {
+      const aMeta = TYPE_META[attacker];
+      const cov   = COVERAGE[attacker];
+      const pct   = Math.round((cov / MAX_COV) * 100);
+
+      const item = document.createElement('li');
+      item.className = `weak-item rank-${i + 1}`;
+
+      // Rank number
+      const rankEl = document.createElement('span');
+      rankEl.className = 'rank-num';
+      rankEl.textContent = `#${i + 1}`;
+
+      // Type badge
+      const badge = document.createElement('span');
+      badge.className = 'type-badge';
+      badge.style.background = aMeta.color;
+      badge.innerHTML = `<span class="type-badge-dot"></span>${aMeta.emoji} ${attacker}`;
+
+      // Coverage bar
+      const barWrap = document.createElement('div');
+      barWrap.className = 'coverage-bar-wrap';
+
+      const bar = document.createElement('div');
+      bar.className = 'coverage-bar';
+
+      const fill = document.createElement('div');
+      fill.className = 'coverage-fill';
+      fill.style.width = pct + '%';
+      fill.style.background = aMeta.color;
+
+      bar.appendChild(fill);
+
+      const covLabel = document.createElement('span');
+      covLabel.className = 'coverage-label';
+      covLabel.title = `${attacker} is super-effective against ${cov} type(s)`;
+      covLabel.textContent = cov > 0 ? `${cov}/18` : '—';
+
+      barWrap.appendChild(bar);
+      barWrap.appendChild(covLabel);
+
+      item.appendChild(rankEl);
+      item.appendChild(badge);
+      item.appendChild(barWrap);
+      list.appendChild(item);
+    });
+
+    body.appendChild(list);
+  }
+
+  card.appendChild(body);
+  return card;
+}
+
+const grid = document.getElementById('grid');
+Object.keys(TYPE_META).forEach(type => {
+  grid.appendChild(buildCard(type));
+});
+</script>
+</body>
+</html>
